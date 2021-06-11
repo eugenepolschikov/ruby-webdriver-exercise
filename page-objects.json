@@ -1,0 +1,4 @@
+{"landing":{
+  "searchInputName":"q",
+  "magnifyingGlassButtonCss": "button[type='submit'][aria-label='Search']"
+}}
