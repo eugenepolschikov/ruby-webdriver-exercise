@@ -65,10 +65,18 @@ class SeleniumDemoTests < Test::Unit::TestCase
     freelancers = Hash.new()
     freelances_names = @driver.find_elements(:css, 'div[data-qa-freelancer-ciphertext] button[itemprop=name]')
     freelancer_titles = @driver.find_elements(:css, 'div[data-qa-freelancer-ciphertext] p.freelancer-title')
-    freelances_names.zip(freelancer_titles).each do |name, title|
-      puts "NAME:'#{name.text}'  TITLE: '#{title.text}'"
-      freelancers[name.text] = title.text
+    freelancer_overview = @driver.find_elements(:css, 'p.overview')
+    count = 0
+
+    freelancer_titles.zip(freelancer_overview).each do |title, overview|
+      puts "title:'#{title.text}'  overview: '#{overview.text}'"
+      # freelancers[name.text] = title.text
+      freelancers[freelances_names[count].text] = [title.text, overview.text]
+      count += 1
     end
+
+    puts "############"
+    puts freelancers
 
     # driver.find_elements(:css, 'div[data-qa-freelancer-ciphertext]').each do |div|
     #   # puts div.attribute_value("data-channel")
