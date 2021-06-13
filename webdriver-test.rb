@@ -74,6 +74,7 @@ class SeleniumDemoTests < Test::Unit::TestCase
     count = 0
     puts "analyzing found freelancers and checking for keyword '#{SEARCH_QUERY}' in all found freelancers' title, overview, skills"
 
+    # creating nested hash to extract data from frelancers list (search resutls) page.
     freelancer_titles.zip(freelancer_overview, freelanceer_skills).each do |title, overview, skill|
       freelancers[freelances_names[count].text] = Hash.new()
       freelancers[freelances_names[count].text][FREELANCERS_TITLE_KEY] = title.text
@@ -91,11 +92,11 @@ class SeleniumDemoTests < Test::Unit::TestCase
     # puts freelancers
     # puts "#######"
 
-    puts "extracting random freelancer title"
+    puts "extracting random freelancer title from titles webelement list to apply random click on it"
     webelement_random_fl_title = freelancer_titles.sample
     puts "clicking on extracted freelancer title '#{webelement_random_fl_title.text}'"
     webelement_random_fl_title.click
-    # hardcoded wait to ensure freelancer page/widget fully loads
+    # hardcoded wait to be sure freelancer details page loaded
     sleep 5
 
     # verification of steps 10,11
