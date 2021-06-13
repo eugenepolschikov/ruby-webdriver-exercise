@@ -110,25 +110,32 @@ class SeleniumDemoTests < Test::Unit::TestCase
     webelement_random_fl_title = freelancer_titles.sample
     puts "clicking on extracted freelancer title '#{webelement_random_fl_title.text}'"
     webelement_random_fl_title.click
+    # hardcoded wait to ensure freelancer page/widget fully loads
+    sleep 5
 
     # verification of steps 10,11
     # check that each attrubute value is equal to one of those stored in the structure 'freelancers'
     # check whether at least one attribute contains <keyword>
     puts "wait for freelancer details page/widget opens"
-    single_freelancer_details = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['fl_details_popup']) }
+    wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['fl_details_popup']) }
     name = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['name']) }
+    single_freelancer_title = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['title']) }
     puts "extracting the data for opened freelancer with name '#{name.text}'"
 
     if freelancers.has_key? name.text
-      puts "FREELANCER TITLE #{freelancers[name.text][FREELANCERS_TITLE_KEY]}"
-      puts "FREELANCER OVERVIEW #{freelancers[name.text][FREELANCERS_OVERVIEW_KEY]}"
-      puts "FREELANCER SKILLS #{freelancers[name.text][FREELANCERS_SKILLS_KEY]}"
+      puts "FREELANCER TITLE from freelancer list page '#{freelancers[name.text][FREELANCERS_TITLE_KEY]}'"
+      puts "FREELANCER OVERVIEW from freelancer list page '#{freelancers[name.text][FREELANCERS_OVERVIEW_KEY]}'"
+      puts "FREELANCER SKILLS from freelancer list page '#{freelancers[name.text][FREELANCERS_SKILLS_KEY]}'"
+
+      puts "ACTUAL name from single freelancer page: '#{name.text}'"
+      puts "ACTUAL title from single freelancer page: '#{single_freelancer_title.text}'"
+
+      puts "checking whether freelancer title is in match. ACTUAL: '#{single_freelancer_title.text}', EXPECTED: '#{freelancers[name.text][FREELANCERS_TITLE_KEY]}'"
+      assert_equal(freelancers[name.text][FREELANCERS_TITLE_KEY], single_freelancer_title.text, "actual freelancer title does not in match with title of freelancer from freelancer list page")
 
     else
       throw Exception("was not able to find freelancer '#{name.text}' amongst previously extracted data '#{freelancers}'")
     end
 
-    #
-    sleep 5
   end
 end
