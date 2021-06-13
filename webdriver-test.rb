@@ -9,6 +9,9 @@ class SeleniumDemoTests < Test::Unit::TestCase
   SEARCH_QUERY = ARGV[0]
   WAIT_INTERVAL_DEFAULT = 15
   ARGS_NUM = ARGV.length
+  FREELANCERS_TITLE_KEY = 'title'
+  FREELANCERS_OVERVIEW_KEY = 'overview'
+  FREELANCERS_SKILLS_KEY = 'skills'
 
   #### Starting browser before each test
   def setup
@@ -71,7 +74,12 @@ class SeleniumDemoTests < Test::Unit::TestCase
     puts "analyzing found freelancers and checking for keyword '#{SEARCH_QUERY}' in all found freelancers' title, overview, skills"
 
     freelancer_titles.zip(freelancer_overview, freelanceer_skills).each do |title, overview, skill|
-      freelancers[freelances_names[count].text] = [title.text, overview.text, skill.text]
+      #@TODO remove before pusjing to server
+      # freelancers[freelances_names[count].text] = [title.text, overview.text, skill.text]
+      freelancers[freelances_names[count].text] = Hash.new()
+      freelancers[freelances_names[count].text][FREELANCERS_TITLE_KEY] = title.text
+      freelancers[freelances_names[count].text][FREELANCERS_OVERVIEW_KEY] = overview.text
+      freelancers[freelances_names[count].text][FREELANCERS_SKILLS_KEY] = skill.text
 
       if title.text.downcase.include? SEARCH_QUERY.downcase
         puts "fl '#{freelances_names[count].text}' title contains '#{SEARCH_QUERY}' keyword"
@@ -102,13 +110,25 @@ class SeleniumDemoTests < Test::Unit::TestCase
     webelement_random_fl_title = freelancer_titles.sample
     puts "clicking on extracted freelancer title '#{webelement_random_fl_title.text}'"
     webelement_random_fl_title.click
-    puts "wait for freelancer details page/widget opens"
-    single_freelancer_details = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['fl_details_popup']) }
 
     # verification of steps 10,11
     # check that each attrubute value is equal to one of those stored in the structure 'freelancers'
     # check whether at least one attribute contains <keyword>
+    puts "wait for freelancer details page/widget opens"
+    single_freelancer_details = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['fl_details_popup']) }
+    name = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['name']) }
+    puts "extracting the data for opened freelancer with name '#{name.text}'"
 
+    if freelancers.has_key? name.text
+      puts "FREELANCER TITLE #{freelancers[name.text][FREELANCERS_TITLE_KEY]}"
+      puts "FREELANCER OVERVIEW #{freelancers[name.text][FREELANCERS_OVERVIEW_KEY]}"
+      puts "FREELANCER SKILLS #{freelancers[name.text][FREELANCERS_SKILLS_KEY]}"
+
+    else
+      throw Exception("was not able to find freelancer '#{name.text}' amongst previously extracted data '#{freelancers}'")
+    end
+
+    #
     sleep 5
   end
 end
