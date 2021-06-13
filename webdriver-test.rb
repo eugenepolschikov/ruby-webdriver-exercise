@@ -32,7 +32,7 @@ class SeleniumDemoTests < Test::Unit::TestCase
     @page_objs = File.read('./page-objects.json')
     @data_hash = JSON.parse(@page_objs)
 
-    #this extra sleep is needed if captcha needs to be handled manually
+    # this extra sleep is needed if captcha needs to be handled manually
     # sleep 165
   end
 
@@ -74,31 +74,14 @@ class SeleniumDemoTests < Test::Unit::TestCase
     puts "analyzing found freelancers and checking for keyword '#{SEARCH_QUERY}' in all found freelancers' title, overview, skills"
 
     freelancer_titles.zip(freelancer_overview, freelanceer_skills).each do |title, overview, skill|
-      #@TODO remove before pusjing to server
-      # freelancers[freelances_names[count].text] = [title.text, overview.text, skill.text]
       freelancers[freelances_names[count].text] = Hash.new()
       freelancers[freelances_names[count].text][FREELANCERS_TITLE_KEY] = title.text
       freelancers[freelances_names[count].text][FREELANCERS_OVERVIEW_KEY] = overview.text
       freelancers[freelances_names[count].text][FREELANCERS_SKILLS_KEY] = skill.text
 
-      if title.text.downcase.include? SEARCH_QUERY.downcase
-        puts "fl '#{freelances_names[count].text}' title contains '#{SEARCH_QUERY}' keyword"
-      else
-        puts "fl '#{freelances_names[count].text}' title DOES NOT contain '#{SEARCH_QUERY}' keyword"
-      end
-
-      if overview.text.downcase.include? SEARCH_QUERY.downcase
-        puts "fl '#{freelances_names[count].text}' overview contains '#{SEARCH_QUERY}' keyword"
-      else
-        puts "fl '#{freelances_names[count].text}' overview DOES NOT contain '#{SEARCH_QUERY}' keyword"
-      end
-
-      if skill.text.downcase.include? SEARCH_QUERY.downcase
-        puts "fl '#{freelances_names[count].text}' skill contains '#{SEARCH_QUERY}' keyword"
-      else
-        puts "fl '#{freelances_names[count].text}' skill DOES NOT contain '#{SEARCH_QUERY}' keyword"
-      end
-
+      check_and_output_comparison_result(title.text.downcase, SEARCH_QUERY, "fl '#{freelances_names[count].text}' title ")
+      check_and_output_comparison_result(overview.text.downcase, SEARCH_QUERY, "fl '#{freelances_names[count].text}' overview ")
+      check_and_output_comparison_result(skill.text.downcase, SEARCH_QUERY, "fl 'fl '#{freelances_names[count].text}' skill ")
       count += 1
     end
 
@@ -137,5 +120,13 @@ class SeleniumDemoTests < Test::Unit::TestCase
       throw Exception("was not able to find freelancer '#{name.text}' amongst previously extracted data '#{freelancers}'")
     end
 
+  end
+
+  def check_and_output_comparison_result(actual_value, query_to_lookup, log_message)
+    if actual_value.include? query_to_lookup.downcase
+      puts "#{log_message} contains '#{query_to_lookup}' keyword"
+    else
+      puts "#{log_message} DOES NOT contain '#{query_to_lookup}' keyword"
+    end
   end
 end
