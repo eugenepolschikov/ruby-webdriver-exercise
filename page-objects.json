@@ -1,4 +1,15 @@
-{"landing":{
-  "searchInputName":"q",
-  "magnifyingGlassButtonCss": "button[type='submit'][aria-label='Search']"
-}}
+{
+  "landing": {
+    "searchInputName": "q",
+    "magnifyingGlassButtonCss": "button[type='submit'][aria-label='Search']"
+  },
+  "freelancer_search_results": {
+    "names": "div[data-qa-freelancer-ciphertext] button[itemprop=name]",
+    "titles": "div[data-qa-freelancer-ciphertext] p.freelancer-title",
+    "overview": "p.overview",
+    "skills": "//div[@class=\"up-skill-wrapper\"][./div[contains(@class,up-skill-badge)]]"
+  },
+  "freelancer_profile": {
+    "fl_details_popup": "div[tabindex='-1'][class='up-slider-content']"
+  }
+}
