@@ -7,6 +7,7 @@ class SeleniumDemoTests < Test::Unit::TestCase
 
   BASE_URL = "http://www.upwork.com"
   SEARCH_QUERY = ARGV[0]
+  BROWSER = ARGV[1]
   WAIT_INTERVAL_DEFAULT = 15
   ARGS_NUM = ARGV.length
   FREELANCERS_TITLE_KEY = 'title'
@@ -16,16 +17,15 @@ class SeleniumDemoTests < Test::Unit::TestCase
 
   #### Starting browser before each test
   def setup
-    # @browser = Selenium::WebDriver.for :firefox
-    # @browser.get "http://localhost/page8"
-    # @wait = Selenium::WebDriver::Wait.new(:timeout => 15)
-    #
-    #
-    #
-    #
-    # creating chrome instance on default settings/capabilities.
-    # driver = Selenium::WebDriver.for :chrome
-    @driver = Selenium::WebDriver.for :chrome, switches: %w[--incognito]
+
+    if BROWSER == "chrome"
+      @driver = Selenium::WebDriver.for :chrome, switches: %w[--incognito]
+    elsif BROWSER == "firefox"
+      @driver = Selenium::WebDriver.for :firefox
+    else
+      puts "invalid browser name"
+      exit
+    end
     @driver.manage.delete_all_cookies
     @driver.manage.window.maximize
     puts "opening website '#{BASE_URL}'"
@@ -44,7 +44,7 @@ class SeleniumDemoTests < Test::Unit::TestCase
 
   def test_end_to_end_test_flow
 
-    if ARGS_NUM > 1 || ARGS_NUM == 0
+    if ARGS_NUM > 2 || ARGS_NUM == 0
       puts "invalid args number"
       exit
     end
@@ -122,7 +122,7 @@ class SeleniumDemoTests < Test::Unit::TestCase
       assert_for_fl_vals(single_freelancer_title.text, freelancers[name.text][FREELANCERS_TITLE_KEY], "actual freelancer title does not in match with title of freelancer from freelancer list page")
       check_and_output_comparison_result(single_freelancer_title.text, SEARCH_QUERY, "freelancer '#{name.text}' title ")
 
-      assert_for_fl_vals(single_freelancer_overview.text.tr("\n","")[0, SUBSTRING_LENGTH], freelancers[name.text][FREELANCERS_OVERVIEW_KEY].tr("\n", "")[0, SUBSTRING_LENGTH], "actual freelancer title does not in match with title of freelancer from freelancer list page")
+      assert_for_fl_vals(single_freelancer_overview.text.tr("\n", "")[0, SUBSTRING_LENGTH], freelancers[name.text][FREELANCERS_OVERVIEW_KEY].tr("\n", "")[0, SUBSTRING_LENGTH], "actual freelancer title does not in match with title of freelancer from freelancer list page")
       check_and_output_comparison_result(single_freelancer_overview.text, SEARCH_QUERY, "freelancer '#{name.text}' overview ")
 
       # less rigoroous check whether at least one attribute contains <keyword>
