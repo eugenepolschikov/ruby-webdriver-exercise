@@ -12,6 +12,8 @@
   "freelancer_profile": {
     "fl_details_popup": "div[tabindex='-1'][class='up-slider-content']",
     "name": "section.up-card-section h1[itemprop='name']",
-    "title": "div.up-slider-content div.profile-viewer section>div>div>div.col>h2"
+    "title": "div.up-slider-content div.profile-viewer section>div>div>div.col>h2",
+    "overview": "div.up-slider-content section.up-card-section.py-30 div.row>div.up-line-clamp-v2-wrapper.col>div[id*='up-line-clamp']>span",
+    "skills_list": "section.up-card-section.py-30 a[href].up-skill-badge.cursor-pointer"
   }
 }

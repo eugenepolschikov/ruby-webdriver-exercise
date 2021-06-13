@@ -12,6 +12,7 @@ class SeleniumDemoTests < Test::Unit::TestCase
   FREELANCERS_TITLE_KEY = 'title'
   FREELANCERS_OVERVIEW_KEY = 'overview'
   FREELANCERS_SKILLS_KEY = 'skills'
+  SUBSTRING_LENGTH = 40
 
   #### Starting browser before each test
   def setup
@@ -86,8 +87,9 @@ class SeleniumDemoTests < Test::Unit::TestCase
     end
 
     puts "######## extracted #{count} freelancers ########"
-    puts freelancers
-    puts "#######"
+    # removed to avoid excessive logging
+    # puts freelancers
+    # puts "#######"
 
     puts "extracting random freelancer title"
     webelement_random_fl_title = freelancer_titles.sample
@@ -103,18 +105,31 @@ class SeleniumDemoTests < Test::Unit::TestCase
     wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['fl_details_popup']) }
     name = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['name']) }
     single_freelancer_title = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['title']) }
+    single_freelancer_overview = wait.until { @driver.find_element(:css => @data_hash['freelancer_profile']['overview']) }
+    single_fl_skills_webelements = wait.until { @driver.find_elements(:css => @data_hash['freelancer_profile']['skills_list']) }
     puts "extracting the data for opened freelancer with name '#{name.text}'"
 
     if freelancers.has_key? name.text
-      puts "FREELANCER TITLE from freelancer list page '#{freelancers[name.text][FREELANCERS_TITLE_KEY]}'"
-      puts "FREELANCER OVERVIEW from freelancer list page '#{freelancers[name.text][FREELANCERS_OVERVIEW_KEY]}'"
-      puts "FREELANCER SKILLS from freelancer list page '#{freelancers[name.text][FREELANCERS_SKILLS_KEY]}'"
+      # removed due to excessive logging
+      # puts "FREELANCER TITLE from freelancer list page '#{freelancers[name.text][FREELANCERS_TITLE_KEY]}'"
+      # puts "FREELANCER OVERVIEW from freelancer list page '#{freelancers[name.text][FREELANCERS_OVERVIEW_KEY]}'"
+      # puts "FREELANCER SKILLS from freelancer list page '#{freelancers[name.text][FREELANCERS_SKILLS_KEY]}'"
+      # puts "ACTUAL name from single freelancer page: '#{name.text}'"
+      # puts "ACTUAL title from single freelancer page: '#{single_freelancer_title.text}'"
+      # puts "ACTUAL overview from single freelancer page: '#{single_freelancer_overview.text}'"
 
-      puts "ACTUAL name from single freelancer page: '#{name.text}'"
-      puts "ACTUAL title from single freelancer page: '#{single_freelancer_title.text}'"
+      assert_for_fl_vals(single_freelancer_title.text, freelancers[name.text][FREELANCERS_TITLE_KEY], "actual freelancer title does not in match with title of freelancer from freelancer list page")
+      check_and_output_comparison_result(single_freelancer_title.text, SEARCH_QUERY, "freelancer '#{name.text}' title ")
 
-      puts "checking whether freelancer title is in match. ACTUAL: '#{single_freelancer_title.text}', EXPECTED: '#{freelancers[name.text][FREELANCERS_TITLE_KEY]}'"
-      assert_equal(freelancers[name.text][FREELANCERS_TITLE_KEY], single_freelancer_title.text, "actual freelancer title does not in match with title of freelancer from freelancer list page")
+      assert_for_fl_vals(single_freelancer_overview.text.tr("\n","")[0, SUBSTRING_LENGTH], freelancers[name.text][FREELANCERS_OVERVIEW_KEY].tr("\n", "")[0, SUBSTRING_LENGTH], "actual freelancer title does not in match with title of freelancer from freelancer list page")
+      check_and_output_comparison_result(single_freelancer_overview.text, SEARCH_QUERY, "freelancer '#{name.text}' overview ")
+
+      # less rigoroous check whether at least one attribute contains <keyword>
+      if (single_freelancer_title.text.include? SEARCH_QUERY) || (single_freelancer_overview.text.include? SEARCH_QUERY) || (checking_query_for_webelements(single_fl_skills_webelements, SEARCH_QUERY))
+        puts "at least either TITLE or OVERVIEW or SKILLS for FL '#{name.text}' contains '#{SEARCH_QUERY}'"
+      else
+        puts "NEITHER title NOR overview NOR skills for FL '#{name.text}' contains '#{SEARCH_QUERY}'"
+      end
 
     else
       throw Exception("was not able to find freelancer '#{name.text}' amongst previously extracted data '#{freelancers}'")
@@ -123,10 +138,28 @@ class SeleniumDemoTests < Test::Unit::TestCase
   end
 
   def check_and_output_comparison_result(actual_value, query_to_lookup, log_message)
-    if actual_value.include? query_to_lookup.downcase
+    if actual_value.include? query_to_lookup
       puts "#{log_message} contains '#{query_to_lookup}' keyword"
     else
       puts "#{log_message} DOES NOT contain '#{query_to_lookup}' keyword"
     end
+  end
+
+  def assert_for_fl_vals(actual_value, expected, log_message)
+    puts "ACTUAL: '#{actual_value}', EXPECTED: '#{expected}'"
+    assert_equal(expected, actual_value, log_message)
+  end
+
+  def checking_query_for_webelements(webelement_list, query)
+    skills_contains_query_flag = false
+    webelement_list.each do |singLe_skill|
+      if singLe_skill.text.include? query
+        # removed due to excessive logging
+        # puts "checking whether webelement '#{singLe_skill.text}' contains query'#{query}'"
+        skills_contains_query_flag = true
+        break
+      end
+    end
+    return skills_contains_query_flag
   end
 end
